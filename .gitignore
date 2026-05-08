@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Cookie cache (auto-generated, contains session tokens)
+.cookies.json
+
+# Personal data (generated at runtime, not for version control)
+all_problems_status.csv
+each_week_link.csv
+
+# Task plans and personal reports
+plan.md
+*_report.md
+solutions/
+
+# Environment variables (if using .env)
+.env
+
+# Local backup (original unredacted docs)
+.backup/
