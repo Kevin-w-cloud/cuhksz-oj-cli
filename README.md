@@ -176,9 +176,15 @@ export OJ_PASSWORD="你的密码"
 1. **获取作业列表** — 用 `fetch_each_week_link.py` 获取所有周的 `doc_id`
 2. **查询题目状态** — 用 `fetch_homework_problems.py --update-csv` 查询各周题目状态并更新 `all_problems_status.csv`
 3. **筛选待完成题目** — 过滤 status_code 为 0（未提交）、2（WA）、3（TLE）、6（CE）的题目
-4. **批量获取题目描述** — 用 `get_problem.py` 一次性获取所有待完成题目的描述
-5. **批量编写代码** — 根据描述和测试用例编写解题代码，保存到 `solutions/p{pid}.py`
-6. **逐个提交并验证** — 用 `do_submit.py` 提交，**每题提交后 sleep 60 秒**，用 `fetch_homework_problems.py --update-csv` 同步结果
+4. **逐题处理（严格执行）** — 对每道待完成题，严格按以下顺序完成后再做下一题：
+   1. 用 `get_problem.py` 获取该题描述
+   2. 编写解题代码，保存到 `solutions/p{pid}.py`
+   3. 用 `do_submit.py` 提交
+   4. 等待 60 秒
+   5. 用 `fetch_homework_problems.py --update-csv` 验证结果
+   6. 向用户报告当前进度（第 X/Y 题，状态）
+
+**禁止**先批量获取所有题目描述再逐个写代码，必须逐题完成全流程。
 
 ### 代码编写规范
 

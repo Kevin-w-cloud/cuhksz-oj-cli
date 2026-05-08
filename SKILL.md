@@ -146,22 +146,28 @@ python3 scripts/fetch_homework_problems.py <doc_id> --update-csv
 - `[--] Not Submitted` → `[XX] Wrong Answer` — 需调试
 - 状态未变 — 判题可能仍在进行，等待后再次查询
 
-## 批量处理策略
+## 逐题处理策略（严格执行）
 
-处理多道题目时，采用「先全部获取，再逐个提交验证」的策略：
+**处理多道题目时，必须严格逐题处理，禁止批量获取后再逐个写代码。**
 
-1. **批量获取题目描述** — 用 `get_problem.py` 一次性获取所有待完成题目的描述（第 3 步循环）。
-2. **批量编写代码** — 根据题目描述逐一编写解题代码，保存到 `solutions/`（第 4 步循环）。
-3. **逐个提交并验证** — 提交一题 → 等待 60 秒 → 查询状态 → 更新计划 → 提交下一题。
+每道题的完整流程（第 3~6 步）必须在开始下一题之前完成：
 
-**完整提交循环**：
 ```
-for each problem in plan:
-    python3 scripts/do_submit.py <pid> <doc_id>
-    sleep 60
-    python3 scripts/fetch_homework_problems.py <doc_id> --update-csv
-    更新 plan.md 中该题状态
+for each problem:
+    1. 获取该题描述      → python3 scripts/get_problem.py <pid>
+    2. 编写解题代码      → 保存到 solutions/p{pid}.py
+    3. 提交代码          → python3 scripts/do_submit.py <pid> <doc_id>
+    4. 等待 60 秒        → sleep 60
+    5. 验证判题结果      → python3 scripts/fetch_homework_problems.py <doc_id> --update-csv
+    6. 向用户报告进度    → 当前第 X/Y 题，状态 AC/WA/TLE 等
+    ──── 然后再开始下一题 ────
 ```
+
+**为什么逐题处理**：
+- 用户能实时看到每道题的进度和结果
+- 避免长时间等待批量处理完成却不知道进展
+- 如果某题出错（如 403、题目描述获取失败），能立即发现并处理
+- 每题完成后用户可以决定是否继续或调整策略
 
 ## Cookie 管理
 
