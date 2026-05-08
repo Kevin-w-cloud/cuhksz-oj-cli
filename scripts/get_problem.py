@@ -2,8 +2,8 @@
 """Fetch problem description from CUHK-SZ OJ.
 
 Usage:
-    python3 scripts/get_problem.py <pid> <tid>
-    python3 scripts/get_problem.py 42 69f0cb448a05e9cfde8f8eb6
+    python3 scripts/get_problem.py <pid>
+    python3 scripts/get_problem.py 42
 """
 
 import argparse
@@ -71,12 +71,11 @@ def extract_problem_text(html: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Fetch OJ problem description")
     parser.add_argument("pid", type=int, help="Problem ID (integer)")
-    parser.add_argument("tid", help="Homework doc_id")
     args = parser.parse_args()
 
-    print(f"Fetching problem {args.pid} (tid={args.tid})...")
+    print(f"Fetching problem {args.pid}...")
     try:
-        resp = get(f"/d/{COURSE_SLUG}/p/{args.pid}", params={"tid": args.tid})
+        resp = get(f"/d/{COURSE_SLUG}/p/{args.pid}")
     except OJError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

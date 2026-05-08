@@ -37,9 +37,8 @@ pip install requests
 
 1. 配置登录凭据：
    ```bash
-   cp assets/.env.example .env
-   # 编辑 .env 填入学号和密码
-   export $(cat .env | xargs)
+   export OJ_USERNAME="学号"
+   export OJ_PASSWORD="密码"
    ```
 
 2. 获取作业列表：
@@ -54,12 +53,17 @@ pip install requests
 
 4. 获取题目描述：
    ```bash
-   python3 scripts/get_problem.py <pid> <tid>
+   python3 scripts/get_problem.py <pid>
    ```
 
 5. 提交代码（需先创建 `solutions/` 目录并放入 `p{pid}.py`）：
    ```bash
    python3 scripts/do_submit.py <pid> <tid>
+   ```
+
+6. 验证判题结果（重新查询题目状态）：
+   ```bash
+   python3 scripts/fetch_homework_problems.py <doc_id> --update-csv
    ```
 
 ## 共享模块
@@ -102,7 +106,7 @@ python3 scripts/fetch_each_week_link.py --update-csv # 同时更新 each_week_li
 
 ### scripts/fetch_homework_problems.py
 
-获取某周作业中所有题目的链接和提交状态。
+获取某周作业中所有题目的链接和提交状态。**同时用于提交后查询判题结果**。
 
 ```bash
 python3 scripts/fetch_homework_problems.py <doc_id>              # 文本格式输出
@@ -117,8 +121,8 @@ CSV 字段：`week, pid, problem_title, url, status, status_code, score, lang, r
 获取 OJ 上具体题目的描述文本，纯文本输出到终端。
 
 ```bash
-python3 scripts/get_problem.py <pid> <tid>
-python3 scripts/get_problem.py 42 69f0cb448a05e9cfde8f8eb6
+python3 scripts/get_problem.py <pid>
+python3 scripts/get_problem.py 42
 ```
 
 ### scripts/do_submit.py
@@ -127,9 +131,11 @@ python3 scripts/get_problem.py 42 69f0cb448a05e9cfde8f8eb6
 
 ```bash
 python3 scripts/do_submit.py <pid> <tid>
-python3 scripts/do_submit.py 42 69f0cb448a05e9cfde8f8eb6
+python3 scripts/do_submit.py 42 69c1637c8a05e9cfde89e27b
 ```
 
+- `pid` — 题目编号
+- `tid` — 该题所属作业周的 `doc_id`（从 `fetch_each_week_link.py` 获取）
 - 自动从 `solutions/p{pid}.py` 读取代码
 - 语言固定为 `py.py3`（Python 3）
 
@@ -167,11 +173,12 @@ export OJ_PASSWORD="你的密码"
 
 完整流程见 [SKILL.md](SKILL.md)，核心步骤：
 
-1. **更新状态** — 用 `fetch_homework_problems.py --update-csv` 查询各周题目状态并更新 `all_problems_status.csv`
-2. **识别任务** — 筛选未完成（status_code=0）、WA（2）、TLE（3）、CE（6）的题目，写入 `plan.md`
-3. **批量获取题目描述** — 用 `get_problem.py` 一次性获取所有待完成题目的描述
-4. **批量编写代码** — 根据描述和测试用例编写解题代码，保存到 `solutions/p{pid}.py`
-5. **逐个提交** — 用 `do_submit.py` 提交，**每题提交后 sleep 60 秒**，用 `fetch_homework_problems.py --update-csv` 同步结果并更新 `plan.md`
+1. **获取作业列表** — 用 `fetch_each_week_link.py` 获取所有周的 `doc_id`
+2. **查询题目状态** — 用 `fetch_homework_problems.py --update-csv` 查询各周题目状态并更新 `all_problems_status.csv`
+3. **筛选待完成题目** — 过滤 status_code 为 0（未提交）、2（WA）、3（TLE）、6（CE）的题目
+4. **批量获取题目描述** — 用 `get_problem.py` 一次性获取所有待完成题目的描述
+5. **批量编写代码** — 根据描述和测试用例编写解题代码，保存到 `solutions/p{pid}.py`
+6. **逐个提交并验证** — 用 `do_submit.py` 提交，**每题提交后 sleep 60 秒**，用 `fetch_homework_problems.py --update-csv` 同步结果
 
 ### 代码编写规范
 
@@ -217,6 +224,7 @@ input = sys.stdin.readline
 
 ## 注意事项
 
+- 所有脚本必须从**项目根目录**执行（`python3 scripts/<脚本名>.py`）
 - OJ 的 Python 环境**不支持** `sys.stdin` / `sys.stdout`，必须使用 `input()` / `print()`
 - 每题提交间隔建议 ≥ 60 秒，避免触发限流
 - 编写代码前必须先用 `get_problem.py` 获取题目描述，不要凭题目名称猜测输入输出格式
