@@ -2,10 +2,10 @@
 """Fetch problems and submission status for a specific homework from CUHK-SZ OJ.
 
 Usage:
-    python3 fetch_homework_problems.py <doc_id>
-    python3 fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6
-    python3 fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6 --json
-    python3 fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6 --update-csv
+    python3 scripts/fetch_homework_problems.py <doc_id>
+    python3 scripts/fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6
+    python3 scripts/fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6 --json
+    python3 scripts/fetch_homework_problems.py 69f0cb448a05e9cfde8f8eb6 --update-csv
 """
 
 import argparse
@@ -17,19 +17,20 @@ from pathlib import Path
 from config import BASE_URL, COURSE_SLUG, STATUS_MAP
 from oj_client import OJError, extract_ui_context, fetch_problem_title, get
 
-CSV_FILE = Path(__file__).parent / "all_problems_status.csv"
-WEEK_CSV_FILE = Path(__file__).parent / "each_week_link.csv"
+CSV_FILE = Path(__file__).parent.parent / "all_problems_status.csv"
+WEEK_CSV_FILE = Path(__file__).parent.parent / "each_week_link.csv"
 
 
 def update_csv(doc_id: str, problems: list):
     """Update all_problems_status.csv with fetched problems for a given week."""
     # Read week metadata from each_week_link.csv
     week_meta = {}
-    with open(WEEK_CSV_FILE, "r", encoding="utf-8-sig") as f:
-        for row in csv.DictReader(f):
-            if row["doc_id"] == doc_id:
-                week_meta = row
-                break
+    if WEEK_CSV_FILE.exists():
+        with open(WEEK_CSV_FILE, "r", encoding="utf-8-sig") as f:
+            for row in csv.DictReader(f):
+                if row["doc_id"] == doc_id:
+                    week_meta = row
+                    break
     if not week_meta:
         print(f"Warning: doc_id {doc_id} not found in each_week_link.csv, skipping CSV update", file=sys.stderr)
         return
@@ -70,7 +71,7 @@ def update_csv(doc_id: str, problems: list):
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"已更新 {CSV_FILE}（{week_title}: {len(problems)} 题）")
+    print(f"Updated {CSV_FILE} ({week_title}: {len(problems)} problems)")
 
 
 def fetch_homework_problems(doc_id: str, json_output: bool = False):
@@ -135,27 +136,27 @@ def fetch_homework_problems(doc_id: str, json_output: bool = False):
         result["problems"] = problems
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
-        print(f"作业: {homework_title}")
-        print(f"链接: {url}")
-        print(f"题目数: {len(problems)}")
+        print(f"Homework: {homework_title}")
+        print(f"URL: {url}")
+        print(f"Problems: {len(problems)}")
         print("-" * 80)
         for i, p in enumerate(problems, 1):
-            status_icon = "✅" if p["status"] == "Accepted" else "❌" if p["status"] != "Not Submitted" else "⬜"
+            status_icon = "AC" if p["status"] == "Accepted" else "XX" if p["status"] != "Not Submitted" else "--"
             print(f"{i}. [{p['pid']}] {p['title']}")
-            print(f"   链接:   {p['url']}")
-            print(f"   状态:   {status_icon} {p['status']}  (score: {p['score']})")
+            print(f"   URL:    {p['url']}")
+            print(f"   Status: [{status_icon}] {p['status']}  (score: {p['score']})")
             if p["rid"]:
-                print(f"   提交ID: {p['rid']}")
+                print(f"   RID:    {p['rid']}")
             print()
 
     return problems
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="获取 OJ 作业中每道题的链接和提交状态")
-    parser.add_argument("doc_id", help="作业 doc_id (如 69f0cb448a05e9cfde8f8eb6)")
-    parser.add_argument("--json", action="store_true", help="以 JSON 格式输出")
-    parser.add_argument("--update-csv", action="store_true", help="同时更新 all_problems_status.csv")
+    parser = argparse.ArgumentParser(description="Fetch OJ homework problems and submission status")
+    parser.add_argument("doc_id", help="Homework doc_id (e.g., 69f0cb448a05e9cfde8f8eb6)")
+    parser.add_argument("--json", action="store_true", help="Output in JSON format")
+    parser.add_argument("--update-csv", action="store_true", help="Also update all_problems_status.csv")
     args = parser.parse_args()
     problems = fetch_homework_problems(args.doc_id, json_output=args.json)
     if args.update_csv:

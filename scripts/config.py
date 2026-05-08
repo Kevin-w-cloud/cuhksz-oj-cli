@@ -10,7 +10,7 @@ COURSE_SLUG = "csc5003_2026_spring"
 OJ_USERNAME = os.environ.get("OJ_USERNAME", "")
 OJ_PASSWORD = os.environ.get("OJ_PASSWORD", "")
 
-_COOKIE_CACHE = Path(__file__).parent / ".cookies.json"
+_COOKIE_CACHE = Path(__file__).parent.parent / ".cookies.json"
 
 COOKIES = {
     "sid": "",

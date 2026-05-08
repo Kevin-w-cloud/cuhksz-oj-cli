@@ -2,8 +2,8 @@
 """Fetch problem description from CUHK-SZ OJ.
 
 Usage:
-    python3 get_problem.py <pid> <tid>
-    python3 get_problem.py 42 69f0cb448a05e9cfde8f8eb6
+    python3 scripts/get_problem.py <pid> <tid>
+    python3 scripts/get_problem.py 42 69f0cb448a05e9cfde8f8eb6
 """
 
 import argparse
@@ -19,7 +19,7 @@ def extract_problem_text(html: str) -> str:
     if start_idx == -1:
         start_idx = html.find('<div class="problem-content"')
         if start_idx == -1:
-            return "(未能定位题目内容区域)"
+            return "(Could not locate problem content area)"
 
     content_start = html.find('>', start_idx) + 1
 
@@ -69,9 +69,9 @@ def extract_problem_text(html: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="获取 OJ 题目描述")
-    parser.add_argument("pid", type=int, help="题目编号")
-    parser.add_argument("tid", help="作业 doc_id")
+    parser = argparse.ArgumentParser(description="Fetch OJ problem description")
+    parser.add_argument("pid", type=int, help="Problem ID (integer)")
+    parser.add_argument("tid", help="Homework doc_id")
     args = parser.parse_args()
 
     print(f"Fetching problem {args.pid} (tid={args.tid})...")

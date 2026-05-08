@@ -2,8 +2,8 @@
 """Submit a solution to CUHK-SZ OJ.
 
 Usage:
-    python3 do_submit.py <pid> <tid>
-    python3 do_submit.py 42 69f0cb448a05e9cfde8f8eb6
+    python3 scripts/do_submit.py <pid> <tid>
+    python3 scripts/do_submit.py 42 69f0cb448a05e9cfde8f8eb6
 """
 
 import argparse
@@ -14,13 +14,13 @@ from pathlib import Path
 from config import COURSE_SLUG
 from oj_client import OJError, post, submit_url
 
-SOLUTIONS_DIR = Path(__file__).parent / "solutions"
+SOLUTIONS_DIR = Path(__file__).parent.parent / "solutions"
 
 
 def main():
-    parser = argparse.ArgumentParser(description="提交代码到 CUHK-SZ OJ")
-    parser.add_argument("pid", type=int, help="题目编号")
-    parser.add_argument("tid", help="作业 doc_id")
+    parser = argparse.ArgumentParser(description="Submit code to CUHK-SZ OJ")
+    parser.add_argument("pid", type=int, help="Problem ID (integer)")
+    parser.add_argument("tid", help="Homework doc_id")
     args = parser.parse_args()
 
     pid = args.pid
