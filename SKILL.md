@@ -46,9 +46,10 @@ compatibility:
 ```bash
 python3 scripts/fetch_each_week_link.py              # 打印所有作业详情
 python3 scripts/fetch_each_week_link.py --urls-only  # 仅打印 URL 列表
+python3 scripts/fetch_each_week_link.py --update-csv # 同时更新 each_week_link.csv
 ```
 
-输出包含每周的 `doc_id`，后续步骤需要用到。
+输出包含每周的 `doc_id`，后续步骤需要用到。使用 `--update-csv` 可将元数据持久化到 `each_week_link.csv`，供 `fetch_homework_problems.py --update-csv` 读取周信息。
 
 ### 第 2 步：查询某周题目状态
 

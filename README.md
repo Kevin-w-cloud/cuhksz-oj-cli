@@ -97,6 +97,7 @@ pip install requests
 ```bash
 python3 scripts/fetch_each_week_link.py              # 打印所有作业的完整详情
 python3 scripts/fetch_each_week_link.py --urls-only  # 仅打印 URL 列表
+python3 scripts/fetch_each_week_link.py --update-csv # 同时更新 each_week_link.csv
 ```
 
 ### scripts/fetch_homework_problems.py
